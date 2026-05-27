@@ -1,7 +1,7 @@
 def validar_id_pedido(id_pedido):
     return len(id_pedido) ==5 and id_pedido[0].isalpha() and id_pedido[1].isdigit()
 
-def casatrar_pedido():
+def cadastrar_pedido():
     print("\n--- CADASTRO DO PEDIDO ---\n")
 
     id_pedido = input("ID do pedido: ")#AUTORIZAÇÃO DO ID
