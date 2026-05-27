@@ -1,6 +1,5 @@
 from funcoes import *
 import os
-from cadastro_pedidos import cadastrar_pedido
 def menu_pedidos():
     os.system("cls")
     print("\n╔═══════════════════════════════╗") 
