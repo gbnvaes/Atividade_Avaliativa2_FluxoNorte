@@ -1,5 +1,6 @@
 from funcoes import *
 import os
+from cadastro_pedidos import cadastrar_pedido
 def menu_pedidos():
     os.system("cls")
     print("\n╔═══════════════════════════════╗") 
@@ -15,7 +16,7 @@ def menu_pedidos():
 
     match opcao:
         case 1:
-            print("cadastro")
+            cadastrar_pedido()
         case 2:
             print("Atualização")
         case 3:
