@@ -46,3 +46,50 @@ def cadastrar_pedido():
     print(f"Descrição:        {descricao_pedido}")
     print(f"Status:           {status}")
     print(f"ID do Entregador: {id_entregador}")
+
+entregadores = {}
+
+def cadastrar_entregador():
+    print("\n--- CADASTRO DE ENTREGADOR ---\n")
+ 
+    id_entregador = input("ID Entregador: ")
+
+    while len(id_entregador) != 4 or not id_entregador.isdigit() or id_entregador in entregadores:
+        print("ID inválido!")
+        if id_entregador in entregadores:
+            print("Esse ID já está cadastrado!")
+
+        id_entregador = input("ID Entregador: ")
+
+    nome = input("Nome: ")
+
+    while not nome.replace(" ", "").isalpha():
+        print("Nome inválido! Digite apenas letras.")
+        nome = input("Nome: ")
+
+    veiculo = input("Veículo [Carro | Moto | Van]: ").title()
+
+    while veiculo not in ["Carro", "Moto", "Van"]:
+        print("Veículo inválido!")
+        veiculo = input("Veículo [Carro | Moto | Van]: ").title()
+  
+    id_pedido = input("ID do Pedido: ")
+
+  
+    disponibilidade = input("Disponibilidade [Disponível/Indisponível]: ").title()
+
+    while disponibilidade not in ["Disponível", "Indisponível"]:
+        print("Digite apenas Disponível ou Indisponível.")
+        disponibilidade = input("Disponibilidade: ").title()
+
+    entregadores[id_entregador] = [
+        nome,
+        veiculo,
+        id_pedido,
+        disponibilidade
+    ]
+    return entregadores
+    print("\n=== ENTREGADOR CADASTRADO COM SUCESSO ===")
+
+
+    
