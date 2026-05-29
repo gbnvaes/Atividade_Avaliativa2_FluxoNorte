@@ -1,4 +1,4 @@
-pedidos = {}
+pedidos = []
 
 def validar_id_pedido(id_pedido):   
     return len(id_pedido) ==5 and id_pedido[0].isalpha() and id_pedido[1].isdigit()
@@ -40,7 +40,8 @@ def cadastrar_pedido():
         print("ID do entregador esta incorreto!! Tente novamente.")
         id_entregador = input("Digite o ID do entregador: ")
 
-    pedidos[id_pedido] = {
+    pedido = {
+        "id_pedido": id_pedido,
         "nome_cliente": nome_cliente,
         "endereco": endereco,
         "prioridade": prioridade,
@@ -49,6 +50,7 @@ def cadastrar_pedido():
         "id_entregador": id_entregador
     }
 
+    pedidos.append(pedido)
 
     print("\n=== Pedido Cadastrado com Sucesso! ===")
     print(f"ID do Pedido:     {id_pedido}")
