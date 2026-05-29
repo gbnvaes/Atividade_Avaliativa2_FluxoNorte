@@ -1,12 +1,12 @@
-pedidos = []
 
+pedido = {}
 def validar_id_pedido(id_pedido):   
     return len(id_pedido) ==5 and id_pedido[0].isalpha() and id_pedido[1].isdigit()
 
 def cadastrar_pedido():
     print("\n--- CADASTRO DO PEDIDO ---\n")
 
-    id_pedido = input("ID do pedido: ")#AUTORIZAÇÃO DO ID
+    id_pedido = input("ID do pedido: ")
     while not validar_id_pedido(id_pedido):
         print("ID do pedido esta invalido. Tente novamente!!")
         id_pedido = input("ID do pedido: ")
@@ -14,7 +14,7 @@ def cadastrar_pedido():
     nome_cliente = input("Digite o nome do cliente: ")
     while not nome_cliente.replace(" ", "").isalpha():
         print("Nome inválido! Digite apenas letras.")
-        nome_cliente = input("Digite o nome do cliente: ") 
+        nome_cliente = input("Digite o nome do cliente: ")
 
     endereco = input("Digite o enderço da entrega: ")
 
@@ -40,27 +40,24 @@ def cadastrar_pedido():
         print("ID do entregador esta incorreto!! Tente novamente.")
         id_entregador = input("Digite o ID do entregador: ")
 
-    pedido = {
-        "id_pedido": id_pedido,
-        "nome_cliente": nome_cliente,
-        "endereco": endereco,
-        "prioridade": prioridade,
-        "descricao": descricao_pedido,
-        "status": status,
-        "id_entregador": id_entregador
-    }
-
-    pedidos.append(pedido)
+    pedido[id_pedido] = [
+        nome_cliente,
+        endereco,
+        prioridade,
+        descricao_pedido,
+        status,
+        id_entregador
+    ]
 
     print("\n=== Pedido Cadastrado com Sucesso! ===")
-    print(f"ID do Pedido:     {id_pedido}")
-    print(f"Cliente:          {nome_cliente}")
-    print(f"Endereço:         {endereco}")
-    print(f"Prioridade:       {prioridade}")
-    print(f"Descrição:        {descricao_pedido}")
-    print(f"Status:           {status}")
-    print(f"ID do Entregador: {id_entregador}")
 
+    # Exibe o dicionário com os dados do pedido
+    campos = ["Nome do cliente", "Endereço", "Prioridade", "Descrição", "Status", "ID do entregador"]
+    print(f"\nPedido ID: {id_pedido}")
+    for campo, valor in zip(campos, pedido[id_pedido]):
+        print(f"  {campo}: {valor}")
+
+    
 
 entregadores = {}
 
