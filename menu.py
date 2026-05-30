@@ -4,7 +4,9 @@ import os
 
 def menu_atualizacao_pedidos():
 
-    while True:
+    opcao = 0
+
+    while opcao != 5:
 
         os.system("cls")
 
@@ -51,11 +53,14 @@ def menu_atualizacao_pedidos():
             case _:
                 print("Opcao invalida!")
                 input("\nPressione ENTER para continuar...")
+                opcao = 0
 
 
-def menu_pedidos():
+def menu_pedidos(): 
 
-    while True:
+    opcao = 0
+
+    while opcao != 6:
 
         os.system("cls")
 
@@ -107,11 +112,13 @@ def menu_pedidos():
             case _:
                 print("Opcao invalida!")
                 input("\nPressione ENTER para continuar...")
-
+                opcao = 0
 
 def menu_entregadores():
 
-    while True:
+    opcao = 0
+
+    while opcao != 4:
 
         os.system("cls")
 
@@ -154,11 +161,14 @@ def menu_entregadores():
             case _:
                 print("Opcao invalida!")
                 input("\nPressione ENTER para continuar...")
+                opcao = 0
 
 
 def menu_consultas():
 
-    while True:
+    opcao = 0
+
+    while opcao != 6:
 
         os.system("cls")
 
@@ -210,10 +220,14 @@ def menu_consultas():
             case _:
                 print("Opcao invalida!")
                 input("\nPressione ENTER para continuar...")
+                opcao = 0
 
 
 def menu_relatorios():
-    while True:
+
+    opcao = 0
+
+    while opcao != 4:
         os.system("cls")
 
         print("\n╔═══════════════════════════════╗")
@@ -250,9 +264,11 @@ def menu_relatorios():
             case _:
                 print("Opcao invalida!")
                 input("\nPressione ENTER para continuar...")
+                opcao = 0
 
-
-while True:
+# MENU PRINCIPAL
+opcao = 0
+while opcao != 5:
 
     os.system("cls")
 
@@ -289,12 +305,10 @@ while True:
             menu_relatorios()
 
         case 5:
-            os.system("cls")
-            print("╠══════════════════════════════╣")
-            print("║    Sistema Finalizado        ║")
-            print("╠══════════════════════════════╣")
-            break
+            if not finalizar_sistema():
+                opcao = 0
 
         case _:
             print("\nOpcao invalida!")
             input("\nPressione ENTER para continuar...")
+            opcao = 0

@@ -10,7 +10,7 @@ LIMITE_CARGA = {
 }
 
 def validar_id_pedido(id_pedido):   
-    return len(id_pedido) ==5 and id_pedido[0].isalpha() and id_pedido[1].isdigit()
+    return len(id_pedido) ==5 and id_pedido[0].isalpha() and id_pedido[1:].isdigit()
 
 def cadastrar_pedido():
     print("\n--- CADASTRO DO PEDIDO ---\n")
@@ -735,3 +735,65 @@ def gerar_relatorio_completo():
         print(f"  {rotulo}: {valor}")
  
     print("\n" + "=" * 50)
+
+def finalizar_sistema():
+    os.system("cls")
+ 
+    print("\n╔═══════════════════════════════════════╗")
+    print("║        FINALIZANDO O SISTEMA         ║")
+    print("╠═══════════════════════════════════════╣")
+ 
+    resumo_sessao = {
+        "Pedidos cadastrados": len(pedido),
+        "Entregadores cadastrados": len(entregadores)
+    }
+ 
+    status_lista = ["Pendente", "Em Rota", "Entregue", "Cancelado"]
+    contagem_status = {}
+    for s in status_lista:
+        contagem_status[s] = 0
+ 
+    for id_p, dados in pedido.items():
+        st = dados[4]
+        if st in contagem_status:
+            contagem_status[st] = contagem_status[st] + 1
+ 
+    print("║                                       ║")
+    print("║         RESUMO DA SESSÃO             ║")
+    print("║                                       ║")
+ 
+    for chave, valor in resumo_sessao.items():
+        linha = f"  {chave}: {valor}"
+        print(f"║  {linha:<37}║")
+ 
+    print("║                                       ║")
+    print("║         STATUS DOS PEDIDOS           ║")
+    print("║                                       ║")
+ 
+    for status, qtd in contagem_status.items():
+        linha = f"  {status}: {qtd}"
+        print(f"║  {linha:<37}║")
+ 
+    print("║                                       ║")
+    print("╠═══════════════════════════════════════╣")
+    print("║  Deseja realmente sair? (S/N)        ║")
+    print("╚═══════════════════════════════════════╝")
+ 
+    confirmacao = input("\nOpção: ").upper().strip()
+ 
+    opcoes_validas = ["S", "N"]
+    while confirmacao not in opcoes_validas:
+        print("Digite apenas S para Sim ou N para Não.")
+        confirmacao = input("Opção: ").upper().strip()
+ 
+    if confirmacao == "S":
+        os.system("cls" if os.name == "nt" else "clear")
+        print("\n" + "=" * 45)
+        print("   Sistema FluxoNorte encerrado.")
+        print("   Obrigado por utilizar o sistema!")
+        print("=" * 45 + "\n")
+        return True
+    else:
+        print("\nRetornando ao menu principal...")
+        return False
+ 
