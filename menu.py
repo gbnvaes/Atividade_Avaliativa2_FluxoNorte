@@ -9,13 +9,13 @@ def menu_atualizacao_pedidos():
         os.system("cls")
 
         print("\n╔═══════════════════════════════╗")
-        print("║      ATUALIZACAO PEDIDOS     ║")
+        print("║      ATUALIZACAO PEDIDOS      ║")
         print("╠═══════════════════════════════╣")
-        print("║ 1 - Alterar Status           ║")
-        print("║ 2 - Cancelar Pedido          ║")
-        print("║ 3 - Associar Entregador      ║")
-        print("║ 4 - Remover Associacao       ║")
-        print("║ 5 - Retornar                 ║")
+        print("║ 1 - Alterar Status            ║")
+        print("║ 2 - Cancelar Pedido           ║")
+        print("║ 3 - Associar Entregador       ║")
+        print("║ 4 - Remover Associacao        ║")
+        print("║ 5 - Retornar                  ║")
         print("╚═══════════════════════════════╝")
 
         try:
@@ -59,9 +59,9 @@ def menu_pedidos():
 
         os.system("cls")
 
-        print("\n╔═══════════════════════════════╗")
+        print("\n╔══════════════════════════════╗")
         print("║            PEDIDOS           ║")
-        print("╠═══════════════════════════════╣")
+        print("╠══════════════════════════════╣")
         print("║ 1 - Cadastro                 ║")
         print("║ 2 - Atualizacao              ║")
         print("║ 3 - Pedidos Pendentes        ║")
@@ -116,12 +116,12 @@ def menu_entregadores():
         os.system("cls")
 
         print("\n╔═══════════════════════════════╗")
-        print("║         ENTREGADORES         ║")
+        print("║         ENTREGADORES          ║")
         print("╠═══════════════════════════════╣")
-        print("║ 1 - Cadastro                 ║")
-        print("║ 2 - Entregas por Entregador  ║")
-        print("║ 3 - Entregador Disponivel    ║")
-        print("║ 4 - Retornar                 ║")
+        print("║ 1 - Cadastro                  ║")
+        print("║ 2 - Entregas por Entregador   ║")
+        print("║ 3 - Entregador Disponivel     ║")
+        print("║ 4 - Retornar                  ║")
         print("╚═══════════════════════════════╝")
 
         try:
@@ -217,12 +217,12 @@ def menu_relatorios():
         os.system("cls")
 
         print("\n╔═══════════════════════════════╗")
-        print("║          RELATORIOS          ║")
+        print("║          RELATORIOS           ║")
         print("╠═══════════════════════════════╣")
-        print("║ 1 - Relatorio de Pedidos     ║")
-        print("║ 2 - Relatorio de Entregadores║")
-        print("║ 3 - Relatorio Completo       ║")
-        print("║ 4 - Retornar                 ║")
+        print("║ 1 - Relatorio de Pedidos      ║")
+        print("║ 2 - Relatorio de Entregadores ║")
+        print("║ 3 - Relatorio Completo        ║")
+        print("║ 4 - Retornar                  ║")
         print("╚═══════════════════════════════╝")
 
         try:
@@ -257,13 +257,13 @@ while True:
     os.system("cls")
 
     print("\n╔═══════════════════════════════╗")
-    print("║              MENU            ║")
+    print("║              MENU             ║")
     print("╠═══════════════════════════════╣")
-    print("║ 1 - Pedidos                  ║")
-    print("║ 2 - Entregadores             ║")
-    print("║ 3 - Consultas                ║")
-    print("║ 4 - Relatorios               ║")
-    print("║ 5 - Finalizar Sistema        ║")
+    print("║ 1 - Pedidos                   ║")
+    print("║ 2 - Entregadores              ║")
+    print("║ 3 - Consultas                 ║")
+    print("║ 4 - Relatorios                ║")
+    print("║ 5 - Finalizar Sistema         ║")
     print("╚═══════════════════════════════╝")
 
     try:
@@ -290,7 +290,9 @@ while True:
 
         case 5:
             os.system("cls")
-            print("Sistema finalizado!")
+            print("╠══════════════════════════════╣")
+            print("║    Sistema Finalizado        ║")
+            print("╠══════════════════════════════╣")
             break
 
         case _:

@@ -1,5 +1,6 @@
 ## Cadastro de pedidos
 pedido = {}
+entregadores = {}
 fila_pedidos = []
 
 LIMITE_CARGA = {
@@ -46,6 +47,26 @@ def cadastrar_pedido():
         print("Status invalido!! Escoleha entre: Pendente, Em Rota, Entregue, Cancelado .")
         status = input("Digite o status do pedido: ").title().strip()
 
+    print("\n--- ENTREGADORES DISPONÍVEIS ---")
+
+    encontrou = False
+
+    for id_e, dados in entregadores.items():
+        veiculo = dados[1]
+        limite = limite_por_veiculo(veiculo)
+        carga = contar_carga_entregador(id_e)
+
+        if dados[3] == "Disponivel" and carga < limite:
+            encontrou = True
+            print(f"ID: {id_e}")
+            print(f"Nome: {dados[0]}")
+            print(f"Veículo: {veiculo}")
+            print(f"Carga: {carga}/{limite}")
+            print("-" * 30)
+
+    if not encontrou:
+        print("Nenhum entregador disponível no momento.")
+
     id_entregador = input("Digite o ID do entregador (0000 se ainda nao houver): ")
     while len(id_entregador) != 4 or not id_entregador.isdigit():
         print("ID do entregador esta incorreto!! Tente novamente.")
@@ -79,7 +100,7 @@ def cadastrar_pedido():
 
     
 
-entregadores = {}
+
 
 def cadastrar_entregador():
     print("\n--- CADASTRO DE ENTREGADOR ---\n")
@@ -105,10 +126,10 @@ def cadastrar_entregador():
         print("Veículo inválido!")
         veiculo = input("Veículo [Carro | Moto | Van]: ").title()
   
-    disponibilidade = input("Disponibilidade [Disponível/Indisponível]: ").title()
+    disponibilidade = input("Disponibilidade [Disponivel/Indisponivel]: ").title()
 
-    while disponibilidade not in ["Disponível", "Indisponível"]:
-        print("Digite apenas Disponível ou Indisponível.")
+    while disponibilidade not in ["Disponivel", "Indisponivel"]:
+        print("Digite apenas Disponivel ou Indisponivel.")
         disponibilidade = input("Disponibilidade: ").title()
 
     entregadores[id_entregador] = [
@@ -149,9 +170,9 @@ def atualizar_disponibilidade_entregador(id_entregador):
     limite = limite_por_veiculo(veiculo)
     carga = contar_carga_entregador(id_entregador)
     if carga >= limite:
-        entregadores[id_entregador][3] = "Indisponível"
+        entregadores[id_entregador][3] = "Indisponivel"
     else:
-        entregadores[id_entregador][3] = "Disponível"
+        entregadores[id_entregador][3] = "Disponivel"
 
 
 def remover_pedido_do_entregador(id_pedido, id_entregador):
@@ -225,7 +246,7 @@ def buscar_entregador_para_pedido():
     menor_carga = -1
 
     for id_e, dados in entregadores.items():
-        if dados[3] != "Disponível":
+        if dados[3] != "Disponivel":
             continue
         veiculo = dados[1]
         limite = limite_por_veiculo(veiculo)
@@ -298,7 +319,7 @@ def associar_entregador_pedido():
         return
 
     adicionar_pedido_ao_entregador(id_pedido, id_entregador)
-    print(f"\nPedido {id_pedido} associado ao entregador {id_entregador} com sucesso!")
+    print(f"\nPedido {id_pedido} associado ao entregador {id_entregador} {entregadores[id_entregador][0]} com sucesso!")
 
 
 def remover_associacao_entregador():
@@ -383,7 +404,7 @@ def buscar_entregador_disponivel():
         veiculo = dados[1]
         limite = limite_por_veiculo(veiculo)
         carga = contar_carga_entregador(id_e)
-        if dados[3] == "Disponível" and carga < limite:
+        if dados[3] == "Disponivel" and carga < limite:
             encontrou = True
             print("-" * 45)
             print(f"Entregador ID: {id_e}")
@@ -398,7 +419,7 @@ def buscar_entregador_disponivel():
         print("-" * 45)
 
 
-## Atualizar status do pedido
+# Atualizar status do pedido
 
 def alterar_status_pedido():
     global fila_pedidos
@@ -621,8 +642,8 @@ def gerar_relatorio_entregadores():
     }
  
     contagem_disponibilidade = {
-        "Disponível": 0,
-        "Indisponível": 0
+        "Disponivel": 0,
+        "Indisponivel": 0
     }
  
     for id_e, dados in entregadores.items():
@@ -699,7 +720,7 @@ def gerar_relatorio_completo():
     disponiveis = 0
     indisponiveis = 0
     for id_e, dados in entregadores.items():
-        if dados[3] == "Disponível":
+        if dados[3] == "Disponivel":
             disponiveis = disponiveis + 1
         else:
             indisponiveis = indisponiveis + 1
