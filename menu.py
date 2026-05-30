@@ -148,3 +148,42 @@ while True:
         case _:
             print("\nOpção inválida!")
             input("\nPressione ENTER para continuar...")
+
+def menu_relatorios():
+    while True:
+        os.system("cls")
+ 
+        print("\n╔═══════════════════════════════╗")
+        print("║          RELATÓRIOS          ║")
+        print("╠═══════════════════════════════╣")
+        print("║ 1 - Relatório de Pedidos     ║")
+        print("║ 2 - Relatório de Entregadores║")
+        print("║ 3 - Relatório Completo       ║")
+        print("║ 4 - Retornar                 ║")
+        print("╚═══════════════════════════════╝")
+ 
+        try:
+            opcao = int(input("Opção: "))
+        except ValueError:
+            print("\nDigite apenas números!")
+            input("\nPressione ENTER para continuar...")
+            continue
+ 
+        os.system("cls")
+
+        match opcao:
+ 
+            case 1:
+                gerar_relatorio_pedidos()
+                input("\nPressione ENTER para continuar...")
+            case 2:
+                gerar_relatorio_entregadores()
+                input("\nPressione ENTER para continuar...")
+            case 3:
+                gerar_relatorio_completo()
+                input("\nPressione ENTER para continuar...")
+            case 4:
+                return
+            case _:
+                print("Opção inválida!")
+                input("\nPressione ENTER para continuar...")
