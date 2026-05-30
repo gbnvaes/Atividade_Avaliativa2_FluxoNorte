@@ -1,5 +1,12 @@
 ## Cadastro de pedidos
 pedido = {}
+fila_pedidos = []
+
+LIMITE_CARGA = {
+    "Moto": 2,
+    "Carro": 3,
+    "Van": 5
+}
 
 def validar_id_pedido(id_pedido):   
     return len(id_pedido) ==5 and id_pedido[0].isalpha() and id_pedido[1].isdigit()
@@ -39,10 +46,13 @@ def cadastrar_pedido():
         print("Status invalido!! Escoleha entre: Pendente, Em Rota, Entregue, Cancelado .")
         status = input("Digite o status do pedido: ").title().strip()
 
-    id_entregador = input("Digite o ID do entregador: ")
+    id_entregador = input("Digite o ID do entregador (0000 se ainda nao houver): ")
     while len(id_entregador) != 4 or not id_entregador.isdigit():
         print("ID do entregador esta incorreto!! Tente novamente.")
-        id_entregador = input("Digite o ID do entregador: ")
+        id_entregador = input("Digite o ID do entregador (0000 se ainda nao houver): ")
+    if id_entregador != "0000" and id_entregador not in entregadores:
+        print("Entregador nao cadastrado! O pedido sera registrado sem associacao.")
+        id_entregador = "0000"
 
     pedido[id_pedido] = [
         nome_cliente,
@@ -52,6 +62,12 @@ def cadastrar_pedido():
         status,
         id_entregador
     ]
+
+    if id_entregador != "0000":
+        lista_pedidos = entregadores[id_entregador][2]
+        if id_pedido not in lista_pedidos:
+            lista_pedidos.append(id_pedido)
+        atualizar_disponibilidade_entregador(id_entregador)
 
     print("\n=== Pedido Cadastrado com Sucesso! ===")
 
@@ -89,9 +105,6 @@ def cadastrar_entregador():
         print("Veículo inválido!")
         veiculo = input("Veículo [Carro | Moto | Van]: ").title()
   
-    id_pedido = input("ID do Pedido: ")
-
-  
     disponibilidade = input("Disponibilidade [Disponível/Indisponível]: ").title()
 
     while disponibilidade not in ["Disponível", "Indisponível"]:
@@ -101,12 +114,12 @@ def cadastrar_entregador():
     entregadores[id_entregador] = [
         nome,
         veiculo,
-        id_pedido,
+        [],
         disponibilidade
     ]
     
     print("\n=== ENTREGADOR CADASTRADO COM SUCESSO ===")
-    campos = ["Nome", "Veículo", "ID do Pedido", "Disponibilidade"]
+    campos = ["Nome", "Veículo", "Pedidos vinculados", "Disponibilidade"]
     print(f"\nEntregador ID: {id_entregador}")
 
     for campo, valor in zip(campos, entregadores[id_entregador]):
@@ -114,9 +127,281 @@ def cadastrar_entregador():
 
     return entregadores
 
+
+def limite_por_veiculo(veiculo):
+    if veiculo in LIMITE_CARGA:
+        return LIMITE_CARGA[veiculo]
+    return 3
+
+
+def contar_carga_entregador(id_entregador):
+    carga = 0
+    for id_p, dados in pedido.items():
+        if dados[5] == id_entregador and dados[4] in ["Pendente", "Em Rota"]:
+            carga = carga + 1
+    return carga
+
+
+def atualizar_disponibilidade_entregador(id_entregador):
+    if id_entregador not in entregadores:
+        return
+    veiculo = entregadores[id_entregador][1]
+    limite = limite_por_veiculo(veiculo)
+    carga = contar_carga_entregador(id_entregador)
+    if carga >= limite:
+        entregadores[id_entregador][3] = "Indisponível"
+    else:
+        entregadores[id_entregador][3] = "Disponível"
+
+
+def remover_pedido_do_entregador(id_pedido, id_entregador):
+    if id_entregador not in entregadores:
+        return
+    lista_pedidos = entregadores[id_entregador][2]
+    nova_lista = []
+    for id_p in lista_pedidos:
+        if id_p != id_pedido:
+            nova_lista.append(id_p)
+    entregadores[id_entregador][2] = nova_lista
+
+
+def adicionar_pedido_ao_entregador(id_pedido, id_entregador):
+    if id_entregador not in entregadores:
+        return False
+    lista_pedidos = entregadores[id_entregador][2]
+    if id_pedido not in lista_pedidos:
+        lista_pedidos.append(id_pedido)
+    pedido[id_pedido][5] = id_entregador
+    pedido[id_pedido][4] = "Em Rota"
+    atualizar_disponibilidade_entregador(id_entregador)
+    return True
+
+
+def ordenar_fila():
+    fila_alta = []
+    fila_normal = []
+    for id_p in fila_pedidos:
+        if id_p in pedido and pedido[id_p][2] == "ALTA":
+            fila_alta.append(id_p)
+        elif id_p in pedido:
+            fila_normal.append(id_p)
+    return fila_alta + fila_normal
+
+
+def processar_fila():
+    global fila_pedidos
+    if len(fila_pedidos) == 0:
+        return
+
+    fila_ordenada = ordenar_fila()
+    nova_fila = []
+
+    for id_p in fila_ordenada:
+        if id_p not in pedido:
+            continue
+        if pedido[id_p][4] != "Pendente":
+            continue
+
+        id_entregador = buscar_entregador_para_pedido()
+        if id_entregador == "":
+            nova_fila.append(id_p)
+            continue
+
+        veiculo = entregadores[id_entregador][1]
+        limite = limite_por_veiculo(veiculo)
+        carga = contar_carga_entregador(id_entregador)
+        if carga >= limite:
+            nova_fila.append(id_p)
+            continue
+
+        adicionar_pedido_ao_entregador(id_p, id_entregador)
+        print(f"Pedido {id_p} saiu da fila e foi associado ao entregador {id_entregador}.")
+
+    fila_pedidos = nova_fila
+
+
+def buscar_entregador_para_pedido():
+    melhor_id = ""
+    menor_carga = -1
+
+    for id_e, dados in entregadores.items():
+        if dados[3] != "Disponível":
+            continue
+        veiculo = dados[1]
+        limite = limite_por_veiculo(veiculo)
+        carga = contar_carga_entregador(id_e)
+        if carga >= limite:
+            continue
+        if menor_carga == -1 or carga < menor_carga:
+            menor_carga = carga
+            melhor_id = id_e
+
+    return melhor_id
+
+
+def associar_entregador_pedido():
+    global fila_pedidos
+    print("\n--- ASSOCIAR ENTREGADOR AO PEDIDO ---\n")
+
+    if not pedido:
+        print("Nenhum pedido cadastrado!")
+        return
+
+    id_pedido = input("Digite o ID do pedido: ")
+    if id_pedido not in pedido:
+        print("Pedido nao encontrado!")
+        return
+
+    if pedido[id_pedido][4] == "Cancelado":
+        print("Pedido cancelado nao pode receber entregador.")
+        return
+
+    if pedido[id_pedido][4] == "Entregue":
+        print("Pedido ja entregue nao pode ser reassociado.")
+        return
+
+    if pedido[id_pedido][4] == "Em Rota" and pedido[id_pedido][5] != "0000":
+        print("Pedido ja possui entregador. Remova a associacao antes de trocar.")
+        return
+
+    print("\n1 - Informar ID do entregador")
+    print("2 - Atribuir automaticamente entregador disponivel")
+    opcao = input("Opcao: ")
+
+    id_entregador = ""
+    if opcao == "1":
+        id_entregador = input("Digite o ID do entregador: ")
+        if id_entregador not in entregadores:
+            print("Entregador nao encontrado!")
+            return
+        veiculo = entregadores[id_entregador][1]
+        limite = limite_por_veiculo(veiculo)
+        carga = contar_carga_entregador(id_entregador)
+        if carga >= limite:
+            print(f"Entregador atingiu o limite de carga ({limite} pedidos para {veiculo}).")
+            resposta = input("Deseja colocar o pedido na fila? (S/N): ").upper()
+            if resposta == "S" and id_pedido not in fila_pedidos:
+                fila_pedidos.append(id_pedido)
+                print(f"Pedido {id_pedido} adicionado a fila de espera.")
+            return
+    elif opcao == "2":
+        id_entregador = buscar_entregador_para_pedido()
+        if id_entregador == "":
+            print("Nenhum entregador disponivel no momento.")
+            resposta = input("Deseja colocar o pedido na fila? (S/N): ").upper()
+            if resposta == "S" and id_pedido not in fila_pedidos:
+                fila_pedidos.append(id_pedido)
+                print(f"Pedido {id_pedido} adicionado a fila de espera.")
+            return
+    else:
+        print("Opcao invalida!")
+        return
+
+    adicionar_pedido_ao_entregador(id_pedido, id_entregador)
+    print(f"\nPedido {id_pedido} associado ao entregador {id_entregador} com sucesso!")
+
+
+def remover_associacao_entregador():
+    print("\n--- REMOVER ASSOCIACAO DE ENTREGADOR ---\n")
+
+    if not pedido:
+        print("Nenhum pedido cadastrado!")
+        return
+
+    id_pedido = input("Digite o ID do pedido: ")
+    if id_pedido not in pedido:
+        print("Pedido nao encontrado!")
+        return
+
+    id_entregador = pedido[id_pedido][5]
+    if id_entregador == "0000":
+        print("Este pedido nao possui entregador associado.")
+        return
+
+    if pedido[id_pedido][4] == "Entregue":
+        print("Nao e possivel remover associacao de pedido ja entregue.")
+        return
+
+    remover_pedido_do_entregador(id_pedido, id_entregador)
+    pedido[id_pedido][5] = "0000"
+    if pedido[id_pedido][4] == "Em Rota":
+        pedido[id_pedido][4] = "Pendente"
+
+    atualizar_disponibilidade_entregador(id_entregador)
+    print(f"\nAssociacao removida. Pedido {id_pedido} voltou para Pendente.")
+    processar_fila()
+
+
+def cancelar_pedido():
+    global fila_pedidos
+    print("\n--- CANCELAR PEDIDO ---\n")
+
+    if not pedido:
+        print("Nenhum pedido cadastrado!")
+        return
+
+    id_pedido = input("Digite o ID do pedido: ")
+    if id_pedido not in pedido:
+        print("Pedido nao encontrado!")
+        return
+
+    if pedido[id_pedido][4] == "Entregue":
+        print("Pedido ja entregue nao pode ser cancelado.")
+        return
+
+    if pedido[id_pedido][4] == "Cancelado":
+        print("Pedido ja esta cancelado.")
+        return
+
+    id_entregador = pedido[id_pedido][5]
+    if id_entregador != "0000":
+        remover_pedido_do_entregador(id_pedido, id_entregador)
+        atualizar_disponibilidade_entregador(id_entregador)
+
+    pedido[id_pedido][5] = "0000"
+    pedido[id_pedido][4] = "Cancelado"
+
+    nova_fila = []
+    for id_p in fila_pedidos:
+        if id_p != id_pedido:
+            nova_fila.append(id_p)
+    fila_pedidos = nova_fila
+
+    print(f"\nPedido {id_pedido} cancelado com sucesso!")
+    processar_fila()
+
+
+def buscar_entregador_disponivel():
+    print("\n--- ENTREGADORES DISPONIVEIS ---\n")
+
+    if not entregadores:
+        print("Nenhum entregador cadastrado!")
+        return
+
+    encontrou = False
+    for id_e, dados in entregadores.items():
+        veiculo = dados[1]
+        limite = limite_por_veiculo(veiculo)
+        carga = contar_carga_entregador(id_e)
+        if dados[3] == "Disponível" and carga < limite:
+            encontrou = True
+            print("-" * 45)
+            print(f"Entregador ID: {id_e}")
+            print(f"  Nome: {dados[0]}")
+            print(f"  Veiculo: {veiculo}")
+            print(f"  Carga atual: {carga}/{limite}")
+            print(f"  Pedidos vinculados: {dados[2]}")
+
+    if not encontrou:
+        print("Nenhum entregador disponivel no momento.")
+    else:
+        print("-" * 45)
+
+
 ## Atualizar status do pedido
 
 def alterar_status_pedido():
+    global fila_pedidos
     print("\n--- ALTERAR STATUS DO PEDIDO ---\n")
 
     if not pedido:
@@ -127,15 +412,34 @@ def alterar_status_pedido():
 
     if id_pedido in pedido:
         status_opcoes = ["Pendente", "Em Rota", "Entregue", "Cancelado"]
-        print(f"Status atual: {pedido[id_pedido[4]]}")
+        print(f"Status atual: {pedido[id_pedido][4]}")
         print(f"Status disponíveis: {', '.join(status_opcoes)}")
 
-        novo_status = input("Digite o novo status do seu pedido:").upper().strip()
+        novo_status = input("Digite o novo status do seu pedido: ").title().strip()
         while novo_status not in status_opcoes:
-            print(f"Status invalidio. Os status diponiveis são:{status_opcoes}")
-            novo_status = input("Digite o novo status: ").upper().strip()
+            print(f"Status invalidio. Os status diponiveis sao: {status_opcoes}")
+            novo_status = input("Digite o novo status: ").title().strip()
 
+        id_entregador = pedido[id_pedido][5]
         pedido[id_pedido][4] = novo_status
+
+        if novo_status == "Entregue" and id_entregador != "0000":
+            remover_pedido_do_entregador(id_pedido, id_entregador)
+            atualizar_disponibilidade_entregador(id_entregador)
+            processar_fila()
+
+        if novo_status == "Cancelado":
+            if id_entregador != "0000":
+                remover_pedido_do_entregador(id_pedido, id_entregador)
+                atualizar_disponibilidade_entregador(id_entregador)
+            pedido[id_pedido][5] = "0000"
+            nova_fila = []
+            for id_p in fila_pedidos:
+                if id_p != id_pedido:
+                    nova_fila.append(id_p)
+            fila_pedidos = nova_fila
+            processar_fila()
+
         print(f"\nStatus do pedido atualizado com sucesso! Novo status: {novo_status}")
     else:
         print("Pedido não encontrado")    
@@ -230,15 +534,15 @@ def listar_entregas_por_entregador():
  
     pedidos_entregador = []
     for id_p, dados in pedido.items():
-        if dados[5] == id_busca:
+        if dados[5] == id_busca and dados[4] == "Entregue":
             pedidos_entregador.append(id_p)
- 
+
     if len(pedidos_entregador) == 0:
-        print("Nenhum pedido vinculado a este entregador.")
+        print("Nenhuma entrega realizada por este entregador.")
         return
- 
+
     campos = ["Nome do cliente", "Endereço", "Prioridade", "Descrição", "Status", "ID do entregador"]
-    print(f"Total de pedidos: {len(pedidos_entregador)}\n")
+    print(f"Total de entregas realizadas: {len(pedidos_entregador)}\n")
  
     for id_p in pedidos_entregador:
         print(f"  Pedido ID: {id_p}")
@@ -345,17 +649,18 @@ def gerar_relatorio_entregadores():
     print("\n  --- Listagem Completa ---")
     print("  " + "-" * 46)
  
-    campos_e = ["Nome", "Veículo", "ID Pedido", "Disponibilidade"]
+    campos_e = ["Nome", "Veículo", "Pedidos vinculados", "Disponibilidade"]
     for id_e, dados in entregadores.items():
         print(f"  Entregador ID: {id_e}")
-        # Conta pedidos vinculados ao entregador
         pedidos_vinculados = []
         for id_p, dp in pedido.items():
             if dp[5] == id_e:
                 pedidos_vinculados.append(id_p)
-        for campo, valor in zip(campos_e, dados):
-            print(f"    {campo}: {valor}")
-        print(f"    Pedidos vinculados: {len(pedidos_vinculados)}")
+        print(f"    Nome: {dados[0]}")
+        print(f"    Veículo: {dados[1]}")
+        print(f"    Pedidos vinculados: {dados[2]}")
+        print(f"    Disponibilidade: {dados[3]}")
+        print(f"    Total de pedidos ativos: {len(pedidos_vinculados)}")
         print("  " + "-" * 46)
  
     print("=" * 50)
