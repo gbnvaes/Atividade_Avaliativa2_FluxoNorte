@@ -1,4 +1,4 @@
-
+## Cadastro de pedidos
 pedido = {}
 def validar_id_pedido(id_pedido):   
     return len(id_pedido) ==5 and id_pedido[0].isalpha() and id_pedido[1].isdigit()
@@ -103,5 +103,25 @@ def cadastrar_entregador():
     return entregadores
     print("\n=== ENTREGADOR CADASTRADO COM SUCESSO ===")
 
+##Atualizar status do pedido
 
-    
+def alterar_status_pedido():
+    print("\n--- ALTERAR STATUS DO PEDIDO ---\n")
+
+    id_pedido = input("Digite o id do pedido: ")
+
+    if id_pedido in pedido:
+        print(f"Status atual: {pedido[id_pedido[4]]}")
+
+        status_opcoes = ["Pendente", "Em Rota", "Entregue", "Cancelado"]
+        print(f"Status disponiveis:{status_opcoes}")
+
+        novo_status = input("Digite o novo status do seu pedido:").upper().strip()
+        while novo_status not in status_opcoes:
+            print(f"Status invalidio. Os status diponiveis são:{status_opcoes}")
+            novo_status = input("Digite o novo status: ").upper().strip()
+
+        pedido[id_pedido][4] = novo_status
+        print(f"\nStatus do pedido atualizado com sucesso! Novo status: {novo_status}")
+    else:
+        print("Pedido não encontrado")    
